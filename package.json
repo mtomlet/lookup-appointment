@@ -1,0 +1,13 @@
+{
+  "name": "lookup-appointment",
+  "version": "1.0.0",
+  "description": "Retell to Meevo proxy - Lookup appointments",
+  "main": "lookup-appointment.js",
+  "scripts": {
+    "start": "node lookup-appointment.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.2"
+  }
+}
