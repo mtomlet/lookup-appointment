@@ -52,11 +52,11 @@ app.post('/lookup', async (req, res) => {
     const client = clients.find(c => {
       if (phone) {
         const cleanPhone = phone.replace(/\D/g, '');
-        const clientPhone = (c.mobilePhone || '').replace(/\D/g, '');
+        const clientPhone = (c.primaryPhoneNumber || '').replace(/\D/g, '');
         return clientPhone === cleanPhone;
       }
       if (email) {
-        return c.email?.toLowerCase() === email.toLowerCase();
+        return c.emailAddress?.toLowerCase() === email.toLowerCase();
       }
       return false;
     });
@@ -70,11 +70,11 @@ app.post('/lookup', async (req, res) => {
       });
     }
 
-    console.log('Client found:', client.firstName, client.lastName, client.id);
+    console.log('Client found:', client.firstName, client.lastName, client.clientId);
 
     // Step 2: Get client's appointments
     const appointmentsRes = await axios.get(
-      `${CONFIG.API_URL}/book/client/${client.id}/services?TenantId=${CONFIG.TENANT_ID}&LocationId=${CONFIG.LOCATION_ID}`,
+      `${CONFIG.API_URL}/book/client/${client.clientId}/services?TenantId=${CONFIG.TENANT_ID}&LocationId=${CONFIG.LOCATION_ID}`,
       { headers: { Authorization: `Bearer ${authToken}` }}
     );
 
@@ -103,7 +103,7 @@ app.post('/lookup', async (req, res) => {
       success: true,
       found: true,
       client_name: `${client.firstName} ${client.lastName}`,
-      client_id: client.id,
+      client_id: client.clientId,
       appointments: formattedAppointments,
       total: formattedAppointments.length,
       message: `Found ${formattedAppointments.length} upcoming appointment(s)`
@@ -120,5 +120,5 @@ app.post('/lookup', async (req, res) => {
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Lookup server running on port ${PORT}`));
