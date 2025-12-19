@@ -16,6 +16,17 @@ const CONFIG = {
 let token = null;
 let tokenExpiry = null;
 
+// Normalize phone to 10-digit format (strips +1 country code and non-digits)
+function normalizePhone(phone) {
+  if (!phone) return '';
+  let cleaned = phone.replace(/\D/g, '');
+  // If 11 digits starting with 1, strip the country code
+  if (cleaned.length === 11 && cleaned.startsWith('1')) {
+    cleaned = cleaned.substring(1);
+  }
+  return cleaned;
+}
+
 async function getToken() {
   if (token && tokenExpiry && Date.now() < tokenExpiry - 300000) return token;
 
@@ -51,8 +62,8 @@ app.post('/lookup', async (req, res) => {
     const clients = clientsRes.data.data || clientsRes.data;
     const client = clients.find(c => {
       if (phone) {
-        const cleanPhone = phone.replace(/\D/g, '');
-        const clientPhone = (c.primaryPhoneNumber || '').replace(/\D/g, '');
+        const cleanPhone = normalizePhone(phone);
+        const clientPhone = normalizePhone(c.primaryPhoneNumber);
         return clientPhone === cleanPhone;
       }
       if (email) {
