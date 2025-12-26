@@ -91,11 +91,16 @@ app.post('/lookup', async (req, res) => {
 
     const allAppointments = appointmentsRes.data.data || appointmentsRes.data;
 
-    // Step 3: Filter for upcoming appointments
+    // Step 3: Filter for upcoming appointments (including same-day past appointments)
+    // This ensures we can find/cancel same-day appointments that Meevo still has
     const now = new Date();
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
     const upcomingAppointments = allAppointments.filter(apt => {
       const aptTime = new Date(apt.startTime);
-      return aptTime > now && !apt.isCancelled;
+      // Include if: future appointment OR same-day appointment (even if past start time)
+      return (aptTime > now || aptTime >= startOfToday) && !apt.isCancelled;
     });
 
     // Step 4: Format response
